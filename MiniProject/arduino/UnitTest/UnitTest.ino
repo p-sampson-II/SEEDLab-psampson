@@ -1,6 +1,4 @@
-#include <Wire.h>
 #include <Encoder.h>
-#include <math.h>
 
 #define MOTORDIR 7
 #define MOTORPWM 9
@@ -9,14 +7,6 @@
 #define EN 4
 
 #define T 8
-
-// Important constants for I2C:
-#define PERIPH_ADDRESS 0x04
-#define RECEIVED_MX 32
-
-Encoder mtrEnc(2,11);
-
-int motorPWM = 0;
 
 int motorPWM = 0;
 
@@ -27,9 +17,6 @@ int pos[2] = {0, 0};
 uint8_t state = 0;
 
 Encoder enc(2,11);
-
-uint8_t received[RECEIVED_MX];
-uint8_t receivedAmt = 0;
 
 class Counter {
 public:
