@@ -2,27 +2,27 @@
 #ifndef POSCTRL_H
 #define POSCTRL_H
 
-class Pos_Ctrl {
-    const float Kp = 1;
-    const float Ki = 0;
-    const float error_bounds = 0.05;
+class PosCtrl {
+    const float Kp = 8.0236;
+    const float Ki = 4;//0.7659;
+    const float ERROR_BOUNDS = 0.005;
 
     float theta [2] = {0,0};
-    float theta_statevar [2] = {0,0};
-    float theta_statevar_d [2] = {0,0};
-    float theta_error [2] = {0,0};
+    float error [2] = {0,0};
+    float totalError = 0;
 
-    void move_frame();
-    void control(float* pos_desired, double* delta_t, float* vel_l, float* vel_r);
+    void moveFrame();
+    void control(float *posDesired, float *pos, double *period, bool integral);
 
   public:
-    float delta_v[2];
-    bool is_error_0();
-    void tick(float* pos_desired, double* delta_t, float* vel_l, float* vel_r);
-    void reset_theta();
+    float voltage[2];
+    bool isError0();
+    bool isFault();
+    void tick(float *posDesired, float *pos, double *period, bool integral);
+    void reset();
     
-    float get_theta();
-    float get_theta_error();
+    float getTheta();
+    float getError();
 };
 
 #endif
