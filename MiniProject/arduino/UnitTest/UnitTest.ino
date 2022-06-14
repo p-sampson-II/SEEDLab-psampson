@@ -1,5 +1,4 @@
 #include <Encoder.h>
-#include <math.h>
 
 #define MOTORDIR 7
 #define MOTORPWM 9
@@ -9,17 +8,12 @@
 
 #define T 8
 
-const float WHEEL_RADIUS = 0.062;
-
-float linearStep = 2*PI*WHEEL_RADIUS/3600;
 int motorPWM = 0;
 
 double deltat = 0;
 long timeStamp[2] = {0, 0};
-long stepCount[2] = {0, 0};
-float pos[2] = {0, 0};
-float vel[2] = {0, 0};
- 
+int pos[2] = {0, 0};
+
 uint8_t state = 0;
 
 Encoder enc(2,11);
@@ -44,25 +38,23 @@ protected:
 };
 
 void calcDeltas() {
-  stepCount[0] = stepCount[1];
   pos[0] = pos[1];
-  vel[0] = vel[1];
   timeStamp[0] = timeStamp[1];
   
-  stepCount[1] = -enc.read();
-  pos[1] = (float)linearStep*stepCount[1];
+  pos[1] = enc.read();
   timeStamp[1] = micros();
   deltat = double(timeStamp[1] - timeStamp[0]) / 1000000;
-  vel[1] = (pos[1]-pos[0])/deltat;
 }
 
-Counter startTmr(1);
-Counter stopTmr(5);
+Counter oneSecond(1);
+Counter tenSecond(10);
 
 void reportData() {
-  Serial.print((startTmr.getElapsed()+stopTmr.getElapsed()), 8);
+  Serial.print((oneSecond.getElapsed()+tenSecond.getElapsed()), 8);
   Serial.print("\t");
-  Serial.print(vel[1]);
+  Serial.print(motorPWM);
+  Serial.print("\t");
+  Serial.print(pos[1]);
   Serial.print("\t");
   Serial.print(state);
   Serial.println("");
@@ -79,17 +71,17 @@ void loop() {
   // put your main code here, to run repeatedly:
   delay(T); //Wait the approximate duration of a period.
   calcDeltas();
-  if(startTmr.getIsComplete() && state == 0) {
+  if(oneSecond.getIsComplete() && state == 0) {
     analogWrite(MOTORPWM, 255);
     state = 1;
   }
-  if(!startTmr.getIsComplete())
-    startTmr.count(deltat);
+  if(!oneSecond.getIsComplete())
+    oneSecond.count(deltat);
   
-  if(stopTmr.getIsComplete() && state == 1) {
+  if(tenSecond.getIsComplete() && state == 1) {
     analogWrite(MOTORPWM, 0);
     state = 2;
   }
-  if(!stopTmr.getIsComplete() && state >= 1) stopTmr.count(deltat);
+  if(!tenSecond.getIsComplete() && state >= 1) tenSecond.count(deltat);
   if(state != 2) reportData();
 }

@@ -3,9 +3,9 @@ import cv2 as cv
 from picamera import PiCamera
 from time import sleep
 from matplotlib import pyplot as plt
-import i2c
+import numpy as np
 
-FRAME_RATE = 8
+FRAME_RATE = 30
 CAM_X = 64
 CAM_Y = 64
 UPSCALE_X = 640
@@ -40,7 +40,6 @@ g = PiCamera.awb_gains
 PiCamera.awb_mode = 'off'
 PiCamera.awb_gains = g
 
-
 # Main loop
 while (1):
     image = np.empty((CAM_Y * CAM_X * 3,), dtype = np.uint8)
@@ -56,7 +55,7 @@ while (1):
 
     # Apply the thresholds above to get a mask of only blue:
     mask = cv.inRange(hsv, thresh_blue_1, thresh_blue_2)
-    #cv.fastNlMeansDenoising(mask,mask,10)
+    cv.fastNlMeansDenoising(mask,mask,10)
     # AND the mask with the original image to get the blue parts of
     # the image only:
     #res = cv.bitwise_and(image,image, mask = mask).astype('uint8')
@@ -65,7 +64,6 @@ while (1):
 
     marker = np.argwhere(thresh) # The pixels where the threshold for the particular shade of blue we have chosen is present
     pixelct = marker.shape[0] # The number of pixels contained in the marker
-    
     pixel_x_avg = 0 # To be the average x-location of the marker on the camera
     pixel_y_avg = 0 # To be the average y-location of the marker on the camera
     for pixel in marker: # Concatenate all of the x and y locations
@@ -79,27 +77,23 @@ while (1):
         pixel_x_avg = 0
         pixel_y_avg = 0
 
-    if not(pixel_x_avg and pixel_y_avg) or pixelct < 20: # If the average location is (0, 0)
+    if not(pixel_x_avg and pixel_y_avg): # If the average location is (0, 0)
         quad = 5 # Report quadrant as unspecified
     elif pixel_x_avg <= (CAM_X/2): # If the average location is on the left
         if pixel_y_avg <= (CAM_Y/2): # If the average location is on the top
             quad = 2 # The marker is in the second quadrant
-            i2c.command(1,np.pi/4)
         else: # Average location is on the bottom
             quad = 3 # The marker is in the third quadrant
-            i2c.command(1,np.pi/2)
     else: # The average location is on the right
         if pixel_y_avg <= (CAM_Y/2): # The average location is on top
             quad = 1 # First Quadrant
-            i2c.command(1,0)
         else: # The average location is on the bottom
             quad = 4 # Fourth Quadrant
-            i2c.command(1,(3*np.pi/4))
     
     #contours, hierarchy, x = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
-    if(X_RATIO != 1 and Y_RATIO != 1):
-        image = cv.resize(image, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
-        thresh = cv.resize(thresh, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
+    
+    image = cv.resize(image, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
+    thresh = cv.resize(thresh, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
     # Display images for comparison
     cv.imshow('hsv', image)
     cv.imshow('thresh', thresh)

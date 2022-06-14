@@ -1,3 +1,10 @@
+// Counter.h
+// Uses time steps to wait for (approximately) the correct time while we let the system do other things.
+// Author: Paul Sampson
+
+#ifndef COUNTER_H
+#define COUNTER_H
+
 class Counter {
   public:
     Counter(double d): duration(d), elapsed(0), isComplete(0) {}
@@ -30,3 +37,5 @@ class Counter {
     bool isComplete;
     bool isStarted;
 };
+
+# endif
