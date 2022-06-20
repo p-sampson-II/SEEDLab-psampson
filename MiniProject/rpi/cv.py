@@ -3,9 +3,11 @@ import cv2 as cv
 from picamera import PiCamera
 from time import sleep
 from matplotlib import pyplot as plt
+import time
 import i2c
+import logging
 
-FRAME_RATE = 8
+FRAME_RATE = 49
 CAM_X = 64
 CAM_Y = 64
 UPSCALE_X = 640
@@ -27,7 +29,7 @@ cv.setMouseCallback('hsv', mouseHSV)
 
 
 # Initialize the camera
-camera = PiCamera(resolution=(CAM_X,CAM_Y), framerate = FRAME_RATE)
+camera = PiCamera(resolution=(CAM_X,CAM_Y), framerate = FRAME_RATE, sensor_mode=5)
 camera.vflip = True
 camera.hflip = True
 
@@ -40,13 +42,22 @@ g = PiCamera.awb_gains
 PiCamera.awb_mode = 'off'
 PiCamera.awb_gains = g
 
+image = np.empty((CAM_Y * CAM_X * 3,), dtype = np.uint8)
+
+format = "%(asctime)s.%(msecs)03d: %(message)s"
+logging.basicConfig(format=format, level=logging.INFO,datefmt="%H:%M:%S")
+
+times=[0,0]
 
 # Main loop
 while (1):
+    times[1] = time.time()
+    dt = times[1]-times[0]
+    times[0] = times[1]
+    logging.info("%f"% dt)
     image = np.empty((CAM_Y * CAM_X * 3,), dtype = np.uint8)
     camera.capture(image, 'bgr')
     image = image.reshape((CAM_Y,CAM_X,3))
-
     # BGR -> HSV
     hsv = cv.cvtColor(image, cv.COLOR_RGB2HSV)
 
@@ -95,13 +106,14 @@ while (1):
         else: # The average location is on the bottom
             quad = 4 # Fourth Quadrant
             i2c.command(1,(3*np.pi/4))
+
     
     #contours, hierarchy, x = cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)
-    if(X_RATIO != 1 and Y_RATIO != 1):
-        image = cv.resize(image, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
-        thresh = cv.resize(thresh, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
+    #if(X_RATIO != 1 and Y_RATIO != 1):
+    #    image = cv.resize(image, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
+    #    thresh = cv.resize(thresh, (UPSCALE_X, UPSCALE_Y), interpolation = cv.INTER_LINEAR)
     # Display images for comparison
-    cv.imshow('hsv', image)
+    #cv.imshow('hsv', image)
     cv.imshow('thresh', thresh)
     k = cv.waitKey(5) & 0xFF
     if k == 27:

@@ -6,8 +6,8 @@
 #define POSCTRL_H
 
 class PosCtrl {
-    const float Kp = 8;
-    const float Ki = 0.2;
+    const float Kp = 1.349;
+    const float Ki = 0.2598;
     const float ERROR_BOUNDS = 0.008;
 
     float theta [2] = {0,0};

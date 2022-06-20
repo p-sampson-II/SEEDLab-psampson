@@ -19,6 +19,6 @@ motor = sim('motorSimIdent', T);
 
 figure;
 subplot(1,2,1);
-plot(motor.inputs(1));
+plot(motor.Velocity);
 subplot(1,2,2);
-plot(motor.outputs);
+plot(motor.Position);

@@ -13,6 +13,7 @@ int motorPWM = 0;
 double deltat = 0;
 long timeStamp[2] = {0, 0};
 int pos[2] = {0, 0};
+double vel = 0;
 
 uint8_t state = 0;
 
@@ -44,17 +45,16 @@ void calcDeltas() {
   pos[1] = enc.read();
   timeStamp[1] = micros();
   deltat = double(timeStamp[1] - timeStamp[0]) / 1000000;
+  vel = (2*PI/3200)*double(pos[1]-pos[0])/deltat;
 }
 
 Counter oneSecond(1);
 Counter tenSecond(10);
 
 void reportData() {
-  Serial.print((oneSecond.getElapsed()+tenSecond.getElapsed()), 8);
+  Serial.print(deltat, 8);
   Serial.print("\t");
-  Serial.print(motorPWM);
-  Serial.print("\t");
-  Serial.print(pos[1]);
+  Serial.print(vel);
   Serial.print("\t");
   Serial.print(state);
   Serial.println("");
