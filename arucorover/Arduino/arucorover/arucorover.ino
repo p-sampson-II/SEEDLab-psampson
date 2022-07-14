@@ -168,6 +168,8 @@ void reportData() {
   Serial.print(turnCtrl.getVoltage());
   Serial.print("\t");
   Serial.print(str_states[state]);
+  Serial.print("\t");
+  Serial.print(doParse);
   Serial.println("");
 }
 
