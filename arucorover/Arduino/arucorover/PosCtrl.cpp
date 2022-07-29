@@ -3,6 +3,7 @@
 // Author: Paul Sampson
 
 #include "PosCtrl.h"
+#include "constants.h"
 
 // Removes the necessity to include cmath
 float abs(float input) {
@@ -27,17 +28,17 @@ bool PosCtrl::isFault() {
 }
 
 // Calculate the new voltage to send to the motor
-void PosCtrl::control(float *posDesired, float *pos, double *period, bool integral) {
-  error[1] = *posDesired-*pos;
+void PosCtrl::control(float &posDesired, float &pos, double &period, bool integral) {
+  error[1] = posDesired-pos*fudge;
   totalError += error[1];
 
-  if(integral) voltage[1] = Kp*error[1]+Ki*(*period)*totalError+voltage[0];
+  if(integral) voltage[1] = Kp*error[1]+Ki*(period)*totalError+voltage[0];
   else voltage[1] = Kp*error[1]+voltage[0];
 }
 
 // Bring the controller to the present by updating it on what has happened to
 // time and position
-void PosCtrl::tick(float *posDesired, float *pos, double *period, bool integral) {
+void PosCtrl::tick(float &posDesired, float &pos, double &period, bool integral) {
   moveFrame();
   control(posDesired, pos, period, integral);
 }

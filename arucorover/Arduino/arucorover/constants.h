@@ -22,16 +22,15 @@
 #define LINEMODE 1
 
 // States
-const char str_states [5][5] = {"init", "seek", "corr", "fwd", "stop"};
+const char str_states [5][11] = { "initial", "linpos", "vel", "turn", "stationary" };
 
 // Period for communication state machine (ms):
 #define U 100
 
 const double rad_enc_step = 2 * 3.14159265359 / 3200; // The encoder has 3200 steps/rotation.
 
-const float l_offset_coeff = 0.2;
-const float wheel_radius = 2.967; //Radius of the driving wheels
-const float wheel_span = 10.46; // The distance between the wheels
+const float wheel_radius = 0.072; //Radius of the driving wheels
+const float wheel_span = 0.27; // The distance between the wheels
 const float v_max = 6; // An approximation of the maximum achievable voltage to drive the motors with.
 const float angle_atom = (3.14159265359/(8));
 #endif

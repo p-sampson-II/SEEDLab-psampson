@@ -5,37 +5,27 @@
 #ifndef COUNTER_H
 #define COUNTER_H
 
-class Counter {
+namespace timers {
+  class Counter {
   public:
+    Counter(): duration(0), elapsed(0), isComplete(0) {}
     Counter(double d): duration(d), elapsed(0), isComplete(0) {}
-    void start() {
-      isStarted = 1;
-    }
-    void count(double dt) {
-      if (elapsed < duration) {
-        if (isStarted) elapsed += dt;
-      }
-      else isComplete = true;
-    }
-    void reset() {
-      elapsed = 0;
-      isComplete = 0;
-      isStarted = 0;
-    }
-    bool getIsComplete() {
-      return isComplete;
-    }
-    bool getIsStarted() {
-      return isStarted;
-    }
-    double getElapsed() {
-      return elapsed;
-    }
+    Counter(Counter &other): duration(other.duration), elapsed(other.elapsed), isComplete(other.isComplete) {}
+    void start();
+    void count(double dt);
+    void reset();
+    bool getIsComplete();
+    bool getIsStarted();
+    double getElapsed();
+    friend class Osc;
   protected:
     double duration;
     double elapsed;
     bool isComplete;
     bool isStarted;
-};
+  };
+}
+
+
 
 # endif

@@ -2,18 +2,20 @@
 #include "constants.h"
 
 void TurnCtrl::control(float & angleDesired, double & dt, float & velL, float & velR) {
-  phi[1] = phi[0] + (dt)*(4*wheel_radius/wheel_span)*(velL-velR)/2;
+  phi[1] = phi[0] + (dt)*(wheel_radius/wheel_span)*(velL-velR)/2;
   error[1] = camera_Kp*(angleDesired) - phi[1];
+  totalError += error[1]; 
   statevar[1] = statevar[0] + dt * error[0];
   if (voltage[1] <= v_max)
-    voltage[1] = Kp * error[1];
+    voltage[1] = Kp * error[1] + Ki * totalError;
   else
     voltage[1] = voltage[0];
 }
 
 void TurnCtrl::tick(float & angleDesired, double & dt, float & velL, float & velR) {
   moveFrame();
-  control(angleDesired, dt, velL, velR);
+  float stopGapVelL = -velL;
+  control(angleDesired, dt, stopGapVelL, velR);
 }
 
 void TurnCtrl::moveFrame() {
@@ -27,6 +29,7 @@ void TurnCtrl::moveFrame() {
 bool TurnCtrl::isError0() {
   if (error[1] < error_bounds && error[1] > -error_bounds){
     error[1] = 0;
+    totalError = 0;
     return true;
   }
   else return false;
