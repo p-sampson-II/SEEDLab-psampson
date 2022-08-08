@@ -144,13 +144,16 @@ void calcDeltas() {
 }
 
 void updateMotors(uint8_t mode, float voltage) {
-  int pwm = float(voltage / VMAX) * 255;
-  const uint8_t pwm_minimum = 28;
+  int pwm = float(voltage / VMAX) * 150;
+  const uint8_t pwm_torque = 35;
+  const uint8_t pwm_thresh = 15;
 
   if (abs(voltage) > VMAX)
-    pwm = 255 * voltage / abs(voltage);
-  else if (abs(voltage) < 0.1)
-    pwm = 0;
+    pwm = 150 * voltage / abs(voltage);
+  else if (abs(pwm) < pwm_torque) {
+    if(abs(pwm) > pwm_thresh) pwm = 35
+    else pwm = 0
+  }
 
   if (mode == TURNMODE) {
     if (pwm >= 0) {
